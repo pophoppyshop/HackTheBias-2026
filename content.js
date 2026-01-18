@@ -1,4 +1,4 @@
-// Listen for messages from the hello.js script
+// Listen for messages from the popup.js script
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
 

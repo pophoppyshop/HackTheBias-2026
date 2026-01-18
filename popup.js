@@ -17,10 +17,10 @@ async function postData(url, data) {
     const responseData = await response.json(); // Parse the response to a usuable JavaScript object
     console.log('Success:', responseData);
 
-    // Display the extracted article information
+    // Display whether article is biased and justification
     const displayText = `
 <strong>Title:</strong> <br> ${responseData.title || 'N/A'}<br><br>
-<strong>Result:</strong><br>${responseData.result || 'No content extracted'}`;
+<strong>Result:</strong><br>${responseData.result || 'No results extracted'}`;
 
     document.getElementById('contentArea').innerHTML = displayText;
   } catch (error) {
@@ -75,5 +75,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 // Add event listener for expand button
 document.getElementById('expandBtn').addEventListener('click', () => {
     document.body.classList.toggle('expanded');
-    document
+});
+
+// Add event listener for accessibility button
+document.getElementById('accessibilityBtn').addEventListener('click', () => {
+    document.body.classList.toggle('large-font');
 });

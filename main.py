@@ -1,9 +1,33 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.messages import SystemMessage, HumanMessage 
 
+# Initialize FastAPI
+app = FastAPI()
 
+# ⚡ CORS settings for deployed app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins (change to specific URLs in production)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Pydantic model for incoming data
+class Text_Query(BaseModel):
+    Title: str
+    Content: str
+
+# Initialize Gemini LLM
+llm_gemini = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash",
+    temperature=0
+)
+
+# Fake news classifier function
 def identify_fake_news(llm_model, text_input: str) -> str:
     messages = [
         SystemMessage(content="""You are a fake news classifier.
@@ -14,24 +38,10 @@ justification: <short explanation>"""),
         HumanMessage(content=text_input)
     ]
 
-    # Use .generate() instead of calling the object
     result = llm_model.generate([messages])
-    
-    # The generated text is inside result.generations[0][0].text
     return result.generations[0][0].text
 
-class Text_Query(BaseModel):
-    Title: str
-    Content: str
-
-
-llm_gemini = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        temperature=0
-    )
-
-app = FastAPI()
-
+# API route
 @app.post("/items/")
 async def create_item(query: Text_Query):
     output_msg = identify_fake_news(llm_gemini, query.Content)

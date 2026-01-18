@@ -6,11 +6,20 @@ llm = ChatGoogleGenerativeAI(
     temperature=0
 )
 
-# Messages (same structure as ChatOpenAI)
+# Messages (with structured output)
 messages = [
-    ("system", "You are a helpful assistant that identifies fake news in the presented content"),
-    ("human", "cats now speak fluent english!"),
+    (
+        "system",
+        """You are a fake news classifier.
+Always respond in the following format exactly:
+
+is_fake_news: <true|false>
+justification: <short explanation>
+"""
+    ),
+    ("human", "cats now speak fluent english!")
 ]
+
 
 # Invoke the model
 ai_msg = llm.invoke(messages)

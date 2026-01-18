@@ -63,6 +63,7 @@ def fetch_first_paragraphs(url, n=2, timeout=10, min_len=30):
     try:
         r = requests.get(url, headers=headers, timeout=timeout)
         r.raise_for_status()
+        # checks if the HTTP connection was successful
     except Exception:
         return []
 

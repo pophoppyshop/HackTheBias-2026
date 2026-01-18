@@ -1,10 +1,18 @@
+# Used for environment variables
+    # For the API key
 import os
+# Searching for patterns
 import re
+# Time sleep
 import time
+# Send HTTP requests to web servers
+    # Used to call Custom Search API
 import requests
+# Scraping
 from bs4 import BeautifulSoup
+# Normalizing domains
+    # Parse URLS into domains
 from urllib.parse import urlparse
-import os
 
 # To prevent leaking sensitive information
 API_KEY = os.getenv("MY_API_KEY")

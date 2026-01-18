@@ -16,8 +16,17 @@ async function postData(url, data) {
 
     const responseData = await response.json(); // Parse the response to a usuable JavaScript object
     console.log('Success:', responseData);
+
+    // Display the extracted article information
+    const displayText = `
+<strong>Title:</strong> <br> ${responseData.title || 'N/A'}<br><br>
+<strong>Result:</strong><br>${responseData.result || 'No content extracted'}`;
+
+    document.getElementById('contentArea').innerHTML = displayText;
   } catch (error) {
     console.error('Error:', error);
+
+    document.getElementById('contentArea').innerHTML = error;
   }
 }
 
@@ -48,23 +57,16 @@ chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
                 // Prepare url and data for POST request
                 const apiEndpoint = 'https://hackthebias-2026.onrender.com/items/';
                 const dataToSend = {
-                    title: response.title,
-                    content: response.content
+                    "Title": response.title,
+                    "Content": response.content
                 }
 
                 // Post data to API
-                postData(apiEndpoint, dataToSend);
+                const postResponse = postData(apiEndpoint, dataToSend);
 
-                console.log("Page content:", response);
-
-                // Display the extracted article information
-                const displayText = `
-<strong>Title:</strong> <br> ${response.title || 'N/A'}<br><br>
-<strong>Content:</strong><br>${response.content ? response.content.substring(0, 500) + '...' : 'No content extracted'}`;
-
-                document.getElementById('contentArea').innerHTML = displayText;
+                console.log("Waiting for response:", postResponse);
             } else {
-                document.getElementById('contentArea').innerText = 'No content received.';
+                document.getElementById('contentArea').innerText = 'No results received.';
             }
         });
     });
@@ -73,4 +75,5 @@ chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 // Add event listener for expand button
 document.getElementById('expandBtn').addEventListener('click', () => {
     document.body.classList.toggle('expanded');
+    document
 });

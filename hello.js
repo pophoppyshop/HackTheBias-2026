@@ -25,9 +25,8 @@ chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 
                 // Display the extracted article information
                 const displayText = `
-                    <strong>Title:</strong> ${response.title || 'N/A'}<br><br>
-                    <strong>Content:</strong><br>${response.content ? response.content.substring(0, 500) + '...' : 'No content extracted'}
-                `;
+<strong>Title:</strong> <br> ${response.title || 'N/A'}<br><br>
+<strong>Content:</strong><br>${response.content ? response.content.substring(0, 500) + '...' : 'No content extracted'}`;
 
                 document.getElementById('contentArea').innerHTML = displayText;
             } else {

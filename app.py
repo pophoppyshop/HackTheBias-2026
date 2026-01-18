@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
 # Prefer environment variables; leave blank if not set
-API_KEY = "AIzaSyCHfQ_DnwHXzINIknGXIxRRIOC_dPw51H8"
-CX = "338db1adfd9114bb2"
+API_KEY = ""
+CX = ""
 
 def google_search(query, num_results=5):
     

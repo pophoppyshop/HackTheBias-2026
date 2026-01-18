@@ -38,6 +38,7 @@ def extract_articles(search_data, max_results=10):
         title = item.get("title")
         link = item.get("link")
 
+        # if they don't exist, it'll just skip over
         if not title or not link:
             continue
 
@@ -82,6 +83,7 @@ def fetch_first_paragraphs(url, n=2, timeout=10, min_len=30):
 def run_query(query):
     data = google_search(query)
 
+    # Value of how many results for the query inputted
     total_results = int(
         data.get("searchInformation", {}).get("totalResults", 0)
     )
@@ -96,15 +98,18 @@ def run_query(query):
     articles = extract_articles(data)
 
     print("\nTop articles (first 2 paragraphs):")
+    # For all the articles, they output one after another
     for i, article in enumerate(articles, start=1):
         print(f"{i}. {article['title']} ({article['website']})")
+        # Getting the first two paragraphs from each article
         first_two = fetch_first_paragraphs(article["url"], n=2)
         if first_two:
             for p in first_two:
                 print("  ", p)
         else:
+            # If it fails, it will print the following message
             print("  [could not fetch or extract preview]")
-        # polite pause to avoid hammering servers
+        # pause to avoid hammering servers
         time.sleep(0.5)
 
     return articles

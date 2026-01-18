@@ -9,6 +9,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
     }, () => {
         // After injection, send the message
         chrome.tabs.sendMessage(tabId, { action: "getPageContent" }, function(response) {
+
             // Send error if content can't be extracted
             if (chrome.runtime.lastError) {
                 console.error("Error sending message:", chrome.runtime.lastError);
@@ -20,10 +21,15 @@ chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
 
             // Show content snippet if received
             if (response && response.content) {
-                console.log("Page content:", response.content);
+                console.log("Page content:", response);
 
-                // Display the content in the popup
-                document.getElementById('contentArea').innerText = response.content.substring(0, 500) + '...';
+                // Display the extracted article information
+                const displayText = `
+                    <strong>Title:</strong> ${response.title || 'N/A'}<br><br>
+                    <strong>Content:</strong><br>${response.content ? response.content.substring(0, 500) + '...' : 'No content extracted'}
+                `;
+
+                document.getElementById('contentArea').innerHTML = displayText;
             } else {
                 document.getElementById('contentArea').innerText = 'No content received.';
             }

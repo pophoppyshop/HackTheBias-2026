@@ -2,7 +2,7 @@
   "name": "Hello Extensions of the world",
   "description": "Base Level Extension",
   "version": "1.0",
-  "permissions": ["activeTab", "scripting"], 
+  "permissions": ["activeTab", "scripting", "tabs", "downloads"], 
   "manifest_version": 3,
   "action": {
     "default_popup": "hello.html",

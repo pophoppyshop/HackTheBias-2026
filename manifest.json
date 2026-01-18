@@ -6,7 +6,7 @@
   "manifest_version": 3,
   "action": {
     "default_popup": "hello.html",
-    "default_icon": "BiasBeGoneLogo.png"
+    "default_icon": "images/BiasBeGoneLogo.png"
   },
   "background": {
     "service_worker": "background.js"

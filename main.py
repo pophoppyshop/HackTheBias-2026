@@ -21,7 +21,7 @@ class Text_Query(BaseModel):
     Title: str
     Content: str
 
-# Initialize Gemini LLM
+# Initialize Gemini LLM. Must do export GEMINI_API_KEY=""
 llm_gemini = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0

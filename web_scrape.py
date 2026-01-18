@@ -1,0 +1,126 @@
+# Used for environment variables
+    # For the API key
+import os
+# Searching for patterns
+import re
+# Time sleep
+import time
+# Send HTTP requests to web servers
+    # Used to call Custom Search API
+import requests
+# Scraping
+from bs4 import BeautifulSoup
+# Normalizing domains
+    # Parse URLS into domains
+from urllib.parse import urlparse
+
+# To prevent leaking sensitive information
+API_KEY = os.getenv("CUSTOM_SEARCH_API_KEY")
+CX = os.getenv("GOOGLE_CX")
+
+def google_search(query, num_results=5):
+    
+    #Perform a Google Custom Search and return raw JSON data.
+    
+    url = "https://www.googleapis.com/customsearch/v1"
+    params = {
+        "q": query,
+        "key": API_KEY,
+        "cx": CX,
+        "num": num_results
+    }
+
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
+
+    return response.json()
+
+def extract_articles(search_data, max_results=10):
+    
+    #Extract article titles, websites, and URLs from search results.
+    
+    articles = []
+
+    # Get titles, links for all sources that do exist
+    for item in search_data.get("items", []):
+        title = item.get("title")
+        link = item.get("link")
+
+        # if they don't exist, it'll just skip over
+        if not title or not link:
+            continue
+
+        # Takes the domain, makes the links all consistent (all lowercase) and removing the "www."
+        domain = urlparse(link).netloc.lower().replace("www.", "")
+
+        # Adds the new entry onto the bottom
+        articles.append({
+            "title": title,
+            "website": domain,
+            "url": link
+        })
+
+        # The amount of articles cannot be greater than the maximum number of results allowed (5)
+        if len(articles) >= max_results:
+            break
+
+    return articles
+
+def fetch_first_paragraphs(url, n=2, timeout=10, min_len=30):
+    """
+    Fetch the page at `url`, extract paragraph texts, filter out
+    very short paragraphs, and return the first `n` paragraphs.
+    Returns an empty list on failure.
+    """
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; fetch-bot/1.0)"}
+    try:
+        r = requests.get(url, headers=headers, timeout=timeout)
+        
+        # checks if the HTTP connection was successful
+        r.raise_for_status()
+    except Exception:
+        return []
+
+    # Use the built-in parser to avoid requiring the lxml dependency
+    soup = BeautifulSoup(r.text, "html.parser")
+    paragraphs = [p.get_text(separator=" ", strip=True) for p in soup.find_all("p")]
+    # Filter out very short paragraphs (e.g., nav, disclaimers)
+    paragraphs = [p for p in paragraphs if len(p) >= min_len]
+    return paragraphs[:n]
+
+def run_query(query):
+    data = google_search(query)
+
+    # Value of how many results for the query inputted
+    total_results = int(
+        data.get("searchInformation", {}).get("totalResults", 0)
+    )
+
+    print(f"\nQuery: {query}")
+    print(f"Total results reported: {total_results}")
+
+    if total_results == 0:
+        print("No results found.")
+        return []
+
+    articles = extract_articles(data)
+
+    print("\nTop articles (first 2 paragraphs):")
+    # For all the articles, they output one after another
+    for i, article in enumerate(articles, start=1):
+        print(f"{i}. {article['title']} ({article['website']})")
+        # Getting the first two paragraphs from each article
+        first_two = fetch_first_paragraphs(article["url"], n=2)
+        if first_two:
+            for p in first_two:
+                print("  ", p)
+        else:
+            # If it fails, it will print the following message
+            print("  [could not fetch or extract preview]")
+        # pause to avoid hammering servers
+        time.sleep(0.5)
+
+    return articles
+
+if __name__ == "__main__":
+    run_query("Artificial Intelligence in Healthcare")

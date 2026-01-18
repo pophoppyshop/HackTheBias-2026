@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import os
 
+# To prevent leaking sensitive information
 API_KEY = os.getenv("MY_API_KEY")
 CX = os.getenv("GOOGLE_CX")
 
@@ -32,6 +33,7 @@ def extract_articles(search_data, max_results=10):
     
     articles = []
 
+    # Get titles, links for all sources that do exist
     for item in search_data.get("items", []):
         title = item.get("title")
         link = item.get("link")
@@ -39,19 +41,21 @@ def extract_articles(search_data, max_results=10):
         if not title or not link:
             continue
 
+        # Takes the domain, makes the links all consistent (all lowercase) and removing the "www."
         domain = urlparse(link).netloc.lower().replace("www.", "")
 
+        # Adds the new entry onto the bottom
         articles.append({
             "title": title,
             "website": domain,
             "url": link
         })
 
+        # The amount of articles cannot be greater than the maximum number of results allowed (5)
         if len(articles) >= max_results:
             break
 
     return articles
-
 
 def fetch_first_paragraphs(url, n=2, timeout=10, min_len=30):
     """
@@ -62,8 +66,9 @@ def fetch_first_paragraphs(url, n=2, timeout=10, min_len=30):
     headers = {"User-Agent": "Mozilla/5.0 (compatible; fetch-bot/1.0)"}
     try:
         r = requests.get(url, headers=headers, timeout=timeout)
-        r.raise_for_status()
+        
         # checks if the HTTP connection was successful
+        r.raise_for_status()
     except Exception:
         return []
 
